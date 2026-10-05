@@ -1,0 +1,15 @@
+# Host ports left blank -> Docker picks free ones. ./start.sh looks them up and opens the app.
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "127.0.0.1::8000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1::5173"
+    environment:
+      API_URL: http://backend:8000
+    depends_on:
+      - backend
