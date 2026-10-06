@@ -19,7 +19,6 @@ UPLOAD_DIR = DATA_DIR / "uploads"
 
 
 def build_extractors() -> ExtractorFactory:
-    # new format = one more register() line
     factory = ExtractorFactory()
     factory.register(PdfExtractor(ocr=MockOcrProvider()))
     factory.register(DocxExtractor())
