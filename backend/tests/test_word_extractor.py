@@ -4,7 +4,7 @@ from pathlib import Path
 import docx
 import pytest
 
-from app.extraction.docx import DocxExtractor
+from app.extractor.word import DocxExtractor
 
 
 @pytest.fixture

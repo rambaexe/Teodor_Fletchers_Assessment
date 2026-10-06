@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.extraction.base import DocumentExtractor
+from app.extractor.base import DocumentExtractor
 
 HEADER_BYTES = 1024
 

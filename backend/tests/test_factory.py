@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from app.extraction.base import DocumentExtractor, ExtractionResult
-from app.extraction.factory import ExtractorFactory, UnsupportedFileError
+from app.extractor.base import DocumentExtractor, ExtractionResult
+from app.extractor.factory import ExtractorFactory, UnsupportedFileError
 
 
 # fake extractors: test the factory without real file formats
