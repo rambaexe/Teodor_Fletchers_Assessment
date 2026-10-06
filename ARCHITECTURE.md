@@ -8,11 +8,12 @@
 
 ## Backend: Python + FastAPI
 ```
-upload -> save file + DB row -> background: pick extractor -> extract -> store chunks
+upload -> save file + DB row -> background: pick extractor -> extract -> enrich -> store
 ```
 - File type detected from content (first bytes), not the extension
 - PDF: per page, text layer if present, otherwise OCR (mocked)
 - Word: headings, paragraphs, lists, tables in order
+- Enrich: summary, category, keywords (LLM call, mocked)
 - REST API for upload + retrieval, incl. plain text for agent context
 
 ## Storage: SQLite
@@ -22,5 +23,5 @@ upload -> save file + DB row -> background: pick extractor -> extract -> store c
 ## Design
 - `DocumentExtractor` interface: one class per format (`extractor/pdf`, `extractor/docx`)
 - `ExtractorFactory` picks the extractor by asking each one `can_handle()`; new format = new class + one `register()` line
-- `OcrProvider` interface injected into the PDF extractor; mock now, real OCR service later
+- `OcrProvider` / `Enricher` interfaces injected; mocks now, real OCR service / LLM later
 - `IngestionService` runs the pipeline; routes stay thin; everything wired in `api/dependencies.py`

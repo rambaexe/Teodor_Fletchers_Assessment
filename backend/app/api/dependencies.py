@@ -6,6 +6,7 @@ Routes get these via FastAPI Depends; tests swap them with app.dependency_overri
 import os
 from pathlib import Path
 
+from app.enricher.mock import MockLlmEnricher
 from app.extractor.docx.extractor import DocxExtractor
 from app.extractor.factory import ExtractorFactory
 from app.extractor.ocr import MockOcrProvider
@@ -26,7 +27,7 @@ def build_extractors() -> ExtractorFactory:
 
 
 _repository = DocumentRepository(DATA_DIR / "documents.db")
-_service = IngestionService(_repository, build_extractors())
+_service = IngestionService(_repository, build_extractors(), MockLlmEnricher())
 
 
 def get_repository() -> DocumentRepository:
