@@ -8,6 +8,7 @@ dependencies = [
     "python-multipart>=0.0.9",
     "python-docx>=1.2.0",
     "pypdf[image]>=6.19.0",
+    "sqlalchemy>=2.0.54",
 ]
 
 [dependency-groups]

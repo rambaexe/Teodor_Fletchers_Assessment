@@ -1,4 +1,4 @@
-import shutil
+import hashlib
 from pathlib import Path
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile
@@ -38,10 +38,14 @@ def upload_document(
     # stored under the doc id: avoids name clashes / path tricks in user filenames
     upload_dir.mkdir(parents=True, exist_ok=True)
     path = upload_dir / f"{doc.id}{Path(doc.filename).suffix.lower()}"
+    digest = hashlib.sha256()
     with path.open("wb") as out:
-        shutil.copyfileobj(file.file, out)
+        while block := file.file.read(1024 * 1024):  # stream: never whole file in memory
+            digest.update(block)
+            out.write(block)
     doc.file_path = str(path)
     doc.size_bytes = path.stat().st_size
+    doc.sha256 = digest.hexdigest()
 
     repository.add(doc)
     background.add_task(service.process, doc.id)  # runs after response is sent

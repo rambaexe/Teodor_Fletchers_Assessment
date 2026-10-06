@@ -29,6 +29,7 @@ class Document:
     filename: str
     file_path: str = ""
     size_bytes: int = 0
+    sha256: str | None = None  # content hash; spots duplicate uploads
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     file_type: str | None = None  # detected from content, not extension
     status: Status = Status.QUEUED

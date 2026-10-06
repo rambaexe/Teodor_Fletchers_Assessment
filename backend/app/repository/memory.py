@@ -1,31 +1,13 @@
 import copy
+import dataclasses
 import threading
-from abc import ABC, abstractmethod
 
 from app.models import Document, utc_now
-
-
-class DocumentRepository(ABC):
-    """Persistence boundary; swap implementations without touching service/routes."""
-
-    @abstractmethod
-    def add(self, doc: Document) -> None: ...
-
-    @abstractmethod
-    def get(self, doc_id: str) -> Document | None: ...
-
-    @abstractmethod
-    def list(self) -> list[Document]: ...
-
-    @abstractmethod
-    def update(self, doc_id: str, **fields) -> None: ...
-
-    @abstractmethod
-    def delete(self, doc_id: str) -> bool: ...
+from app.repository.base import DocumentRepository
 
 
 class InMemoryDocumentRepository(DocumentRepository):
-    # temporary until SQLite (feat/storage); also handy for tests
+    # fast, no files: used in tests
     # lock: background jobs write from worker threads
 
     def __init__(self) -> None:
@@ -44,13 +26,13 @@ class InMemoryDocumentRepository(DocumentRepository):
     def list(self) -> list[Document]:
         with self._lock:
             docs = sorted(self._docs.values(), key=lambda d: d.created_at, reverse=True)
-            return copy.deepcopy(docs)
+            return [dataclasses.replace(copy.deepcopy(d), chunks=[]) for d in docs]
 
     def update(self, doc_id: str, **fields) -> None:
         with self._lock:
             doc = self._docs[doc_id]
             for name, value in fields.items():
-                setattr(doc, name, value)
+                setattr(doc, name, copy.deepcopy(value))
             doc.updated_at = utc_now()
 
     def delete(self, doc_id: str) -> bool:

@@ -6,12 +6,13 @@ Routes get these via FastAPI Depends; tests swap them with app.dependency_overri
 import os
 from pathlib import Path
 
-from app.repository import DocumentRepository, InMemoryDocumentRepository
+from app.repository import DocumentRepository, SqliteDocumentRepository
 from app.service import IngestionService
 
-UPLOAD_DIR = Path(os.environ.get("DATA_DIR", "data")) / "uploads"
+DATA_DIR = Path(os.environ.get("DATA_DIR", "data"))
+UPLOAD_DIR = DATA_DIR / "uploads"
 
-_repository = InMemoryDocumentRepository()
+_repository = SqliteDocumentRepository(DATA_DIR / "documents.db")
 _service = IngestionService(_repository)
 
 
