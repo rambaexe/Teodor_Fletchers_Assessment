@@ -6,7 +6,7 @@ from docx.table import Table
 from docx.text.paragraph import Paragraph
 
 from app.extractor.base import DocumentExtractor, ExtractionResult, ProgressFn
-from app.models import Chunk
+from app.db.models import Chunk
 
 ZIP_MAGIC = b"PK\x03\x04"
 

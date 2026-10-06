@@ -5,7 +5,7 @@ from pathlib import Path
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import selectinload, sessionmaker
 
-from app.models import Base, Document
+from app.db.models import Base, Document
 
 
 class DocumentRepository:

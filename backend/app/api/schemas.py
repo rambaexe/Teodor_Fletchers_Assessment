@@ -5,7 +5,7 @@ from typing import Annotated
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field
 
-from app.models import Status
+from app.db.models import Status
 
 # SQLite drops tz info; stored values are UTC -> mark them so clients don't read local time
 UtcDatetime = Annotated[datetime, AfterValidator(lambda d: d if d.tzinfo else d.replace(tzinfo=timezone.utc))]

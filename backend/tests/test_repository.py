@@ -2,8 +2,8 @@ import time
 
 import pytest
 
-from app.models import Chunk, Document, Status
-from app.repository import DocumentRepository
+from app.db.models import Chunk, Document, Status
+from app.db.repository import DocumentRepository
 
 
 @pytest.fixture

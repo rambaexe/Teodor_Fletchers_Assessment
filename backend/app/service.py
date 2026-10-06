@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from app.extractor.factory import ExtractorFactory
-from app.models import Status
-from app.repository import DocumentRepository
+from app.db.models import Status
+from app.db.repository import DocumentRepository
 
 
 class IngestionService:

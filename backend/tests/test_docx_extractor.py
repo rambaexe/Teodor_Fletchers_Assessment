@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from app.extractor.docx import DocxExtractor
+from app.extractor.docx.extractor import DocxExtractor
 from tests.samples import docx_bytes
 
 

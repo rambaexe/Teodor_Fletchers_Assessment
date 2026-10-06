@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import ClassVar
 
-from app.models import Chunk
+from app.db.models import Chunk
 
 # progress as a fraction 0..1; service maps it onto the document's progress
 ProgressFn = Callable[[float], None]

@@ -6,11 +6,11 @@ Routes get these via FastAPI Depends; tests swap them with app.dependency_overri
 import os
 from pathlib import Path
 
-from app.extractor.docx import DocxExtractor
+from app.extractor.docx.extractor import DocxExtractor
 from app.extractor.factory import ExtractorFactory
 from app.extractor.ocr import MockOcrProvider
-from app.extractor.pdf import PdfExtractor
-from app.repository import DocumentRepository
+from app.extractor.pdf.extractor import PdfExtractor
+from app.db.repository import DocumentRepository
 from app.service import IngestionService
 
 DATA_DIR = Path(os.environ.get("DATA_DIR", "data"))

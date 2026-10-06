@@ -6,8 +6,8 @@ from fastapi.responses import PlainTextResponse
 
 from app.api.dependencies import get_repository, get_service, get_upload_dir
 from app.api.schemas import DocumentDetailOut, DocumentOut
-from app.models import Document
-from app.repository import DocumentRepository
+from app.db.models import Document
+from app.db.repository import DocumentRepository
 from app.service import IngestionService
 
 router = APIRouter()

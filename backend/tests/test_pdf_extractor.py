@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from app.extractor.ocr import OcrProvider
-from app.extractor.pdf import PdfExtractor
+from app.extractor.pdf.extractor import PdfExtractor
 from tests.samples import DIGITAL_TEXT, make_pdf
 
 

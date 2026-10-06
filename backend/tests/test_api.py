@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from app.api.dependencies import build_extractors, get_repository, get_service, get_upload_dir
 from app.main import app
-from app.repository import DocumentRepository
+from app.db.repository import DocumentRepository
 from app.service import IngestionService
 from tests.samples import DIGITAL_TEXT, docx_bytes, pdf_bytes
 

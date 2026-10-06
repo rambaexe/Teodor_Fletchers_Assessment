@@ -5,7 +5,7 @@ from pypdf.errors import PdfReadError
 
 from app.extractor.base import DocumentExtractor, ExtractionResult, ProgressFn
 from app.extractor.ocr import OcrProvider
-from app.models import Chunk
+from app.db.models import Chunk
 
 PDF_MAGIC = b"%PDF-"
 MIN_TEXT_CHARS = 20  # fewer chars on a page -> treat as scanned, use OCR
