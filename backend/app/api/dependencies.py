@@ -1,4 +1,4 @@
-"""Composition root: the only place concrete implementations are created.
+"""Composition root: the only place concrete implementations are created and wired.
 
 Routes get these via FastAPI Depends; tests swap them with app.dependency_overrides.
 """
@@ -6,14 +6,27 @@ Routes get these via FastAPI Depends; tests swap them with app.dependency_overri
 import os
 from pathlib import Path
 
+from app.extractor.docx import DocxExtractor
+from app.extractor.factory import ExtractorFactory
+from app.extractor.ocr import MockOcrProvider
+from app.extractor.pdf import PdfExtractor
 from app.repository import DocumentRepository
 from app.service import IngestionService
 
 DATA_DIR = Path(os.environ.get("DATA_DIR", "data"))
 UPLOAD_DIR = DATA_DIR / "uploads"
 
+
+def build_extractors() -> ExtractorFactory:
+    # new format = one more register() line
+    factory = ExtractorFactory()
+    factory.register(PdfExtractor(ocr=MockOcrProvider()))
+    factory.register(DocxExtractor())
+    return factory
+
+
 _repository = DocumentRepository(DATA_DIR / "documents.db")
-_service = IngestionService(_repository)
+_service = IngestionService(_repository, build_extractors())
 
 
 def get_repository() -> DocumentRepository:

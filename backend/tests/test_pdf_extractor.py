@@ -1,14 +1,10 @@
 from pathlib import Path
 
 import pytest
-from PIL import Image
-from reportlab.lib.utils import ImageReader
-from reportlab.pdfgen import canvas
 
 from app.extractor.ocr import OcrProvider
 from app.extractor.pdf import PdfExtractor
-
-DIGITAL_TEXT = "This page has a real text layer with plenty of characters."
+from tests.samples import DIGITAL_TEXT, make_pdf
 
 
 class SpyOcr(OcrProvider):
@@ -20,23 +16,6 @@ class SpyOcr(OcrProvider):
     def extract_text(self, image: bytes) -> str:
         self.calls += 1
         return "scanned words"
-
-
-# PDFs built on the fly: no binary fixtures in the repo
-def make_pdf(path: Path, pages: list[str], title: str | None = None) -> Path:
-    """pages: "text" = digital page, "image" = scanned page (image only), "blank"."""
-    c = canvas.Canvas(str(path))
-    if title:
-        c.setTitle(title)
-        c.setAuthor("Jane Doe")
-    for kind in pages:
-        if kind == "text":
-            c.drawString(72, 720, DIGITAL_TEXT)
-        elif kind == "image":
-            c.drawImage(ImageReader(Image.new("RGB", (200, 100), "white")), 72, 600)
-        c.showPage()
-    c.save()
-    return path
 
 
 def header(path: Path) -> bytes:

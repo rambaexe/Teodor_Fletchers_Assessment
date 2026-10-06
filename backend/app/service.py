@@ -1,19 +1,16 @@
 from pathlib import Path
 
-from app.extractors import detect_file_type
+from app.extractor.factory import ExtractorFactory
 from app.models import Status
 from app.repository import DocumentRepository
 
 
-class UnsupportedFileError(Exception):
-    pass
-
-
 class IngestionService:
-    """Runs one document through the pipeline; writes status/progress as it goes."""
+    """Runs one document through the pipeline: detect -> extract -> store. Writes status/progress as it goes."""
 
-    def __init__(self, repository: DocumentRepository) -> None:
+    def __init__(self, repository: DocumentRepository, extractors: ExtractorFactory) -> None:
         self.repository = repository
+        self.extractors = extractors
 
     def process(self, doc_id: str) -> None:
         doc = self.repository.get(doc_id)
@@ -21,16 +18,29 @@ class IngestionService:
             return  # deleted before processing started
 
         try:
-            self.repository.update(doc_id, status=Status.PROCESSING, progress=10)
+            self.repository.update(doc_id, status=Status.PROCESSING, progress=5)
+            path = Path(doc.file_path)
 
-            file_type = detect_file_type(Path(doc.file_path))
-            if file_type is None:
-                raise UnsupportedFileError("Unsupported file type (expected PDF or DOCX)")
-            self.repository.update(doc_id, file_type=file_type, progress=30)
+            # factory picks the extractor from file content; service never checks the format itself
+            extractor = self.extractors.for_file(path)
+            self.repository.update(doc_id, file_type=extractor.file_type, progress=10)
 
-            # TODO(feat/extraction): extract chunks + metadata
-            # TODO(feat/enrichment): summary, category, keywords
+            # extractor reports 0..1 -> stored as 10..90%
+            def on_progress(fraction: float) -> None:
+                self.repository.update(doc_id, progress=10 + int(fraction * 80))
 
-            self.repository.update(doc_id, status=Status.DONE, progress=100)
+            result = extractor.extract(path, on_progress)
+
+            # TODO(enrichment): summary, category, keywords
+
+            self.repository.update(
+                doc_id,
+                chunks=result.chunks,
+                extraction_method=result.method,
+                page_count=result.page_count,
+                doc_metadata=result.metadata,
+                status=Status.DONE,
+                progress=100,
+            )
         except Exception as e:
-            self.repository.update(doc_id, status=Status.FAILED, error=str(e))
+            self.repository.update(doc_id, status=Status.FAILED, error=str(e) or type(e).__name__)

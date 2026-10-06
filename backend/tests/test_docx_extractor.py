@@ -1,29 +1,16 @@
 import zipfile
 from pathlib import Path
 
-import docx
 import pytest
 
 from app.extractor.docx import DocxExtractor
+from tests.samples import docx_bytes
 
 
 @pytest.fixture
 def sample_docx(tmp_path: Path) -> Path:
-    # built on the fly: no binary fixtures in the repo
-    d = docx.Document()
-    d.core_properties.title = "Quarterly Report"
-    d.core_properties.author = "Jane Doe"
-    d.add_heading("Summary", level=1)
-    d.add_paragraph("Revenue grew this quarter.")
-    d.add_paragraph("")  # empty: should be skipped
-    d.add_paragraph("First point", style="List Bullet")
-    table = d.add_table(rows=2, cols=2)
-    table.cell(0, 0).text, table.cell(0, 1).text = "Region", "Revenue"
-    table.cell(1, 0).text, table.cell(1, 1).text = "EU", "1.2m"
-    d.add_paragraph("Closing note.")
-
     path = tmp_path / "report.docx"
-    d.save(str(path))
+    path.write_bytes(docx_bytes())
     return path
 
 
