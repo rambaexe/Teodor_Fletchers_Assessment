@@ -1,6 +1,9 @@
-# Document Ingestion Pipeline
+# Document Ingestion Pipeline - Fletchers Assessment
 
-Upload `.pdf` / `.docx` files, extract and store their content, and retrieve it through a web UI and REST API.
+- Uploading `.pdf` / `.docx` files
+
+- Extracting and store their content, and retrieve it through a web UI and REST API.
+
 
 - Brief: [BRIEFING.md](BRIEFING.md)
 - Written answers: [Follow-Up Questions.md](Follow-Up%20Questions.md)
