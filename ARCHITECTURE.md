@@ -29,13 +29,13 @@ upload -> save file + DB row -> background: pick extractor -> extract -> enrich 
 
 **Upload**
 - `UploadArea.tsx` -> `POST /documents`
-- `api/routes.py` -> file saved to `data/uploads`, DB row created (queued), returns 202
+- `api/routes.py` -> file saved to `data/uploads`, DB row created (queued)
 
 **Process** (background, `service.py`)
-- `extractor/factory.py` -> `for_file()`: first bytes -> PDF / Word extractor
+- `extractor/factory.py` -> `for_file()`: signature/first bytes -> PDF / Word extractor
 - `extractor/pdf | docx` -> `extract()`: chunks + metadata (scanned pages -> `extractor/ocr.py`)
 - `enricher/mock.py` -> `enrich()`: summary, category, keywords
-- `db/repository.py` -> `update()`: chunks saved, status done (or failed + error)
+- `db/repository.py` -> `update()`: chunks saved, update status (done or failed + error)
 
 **Show**
 - `App.tsx` -> `GET /documents`: list, polled while anything is processing
