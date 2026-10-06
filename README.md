@@ -33,4 +33,3 @@ npm run dev   # starts both, live reload
 
 Open http://localhost:5173 (or the next free port Vite prints). Ctrl+C stops both.
 
-Tests: `npm test`
