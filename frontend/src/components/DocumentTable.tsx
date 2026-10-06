@@ -1,4 +1,4 @@
-import { isActive, typeLabel, type DocumentSummary } from '../api'
+import { formatDate, isActive, STATUS_LABEL, typeLabel, type DocumentSummary } from '../api'
 
 interface Props {
   documents: DocumentSummary[]
@@ -20,9 +20,7 @@ export function DocumentTable({ documents, selectedId, onSelect, onDelete }: Pro
             <th>File</th>
             <th>Type</th>
             <th>Status</th>
-            <th>Method</th>
-            <th>Category</th>
-            <th>Uploaded</th>
+            <th>Updated</th>
             <th aria-label="actions" />
           </tr>
         </thead>
@@ -36,14 +34,12 @@ export function DocumentTable({ documents, selectedId, onSelect, onDelete }: Pro
               <td className="filename" title={d.filename}>
                 {d.filename}
               </td>
-              <td>{typeLabel(d.file_type)}</td>
+              <td>{typeLabel(d)}</td>
               <td>
                 <StatusCell doc={d} />
               </td>
-              <td>{d.extraction_method ? <span className="tag">{d.extraction_method}</span> : '—'}</td>
-              <td>{d.category ?? '—'}</td>
-              <td className="muted">{new Date(d.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
-              <td>
+              <td className="muted">{formatDate(d.updated_at)}</td>
+              <td className="actions">
                 <button
                   className="icon-btn"
                   title="Delete"
@@ -63,10 +59,11 @@ export function DocumentTable({ documents, selectedId, onSelect, onDelete }: Pro
   )
 }
 
-function StatusCell({ doc }: { doc: DocumentSummary }) {
+export function StatusCell({ doc }: { doc: DocumentSummary }) {
+  const { label, hint } = STATUS_LABEL[doc.status]
   return (
-    <div className="status-cell" title={doc.error ?? undefined}>
-      <span className={`badge ${doc.status}`}>{doc.status}</span>
+    <div className="status-cell" title={doc.error ?? hint}>
+      <span className={`badge ${doc.status}`}>{label}</span>
       {isActive(doc) && (
         <div className="progress">
           <div style={{ width: `${doc.progress}%` }} />

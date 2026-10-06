@@ -2,7 +2,7 @@ import copy
 import threading
 from abc import ABC, abstractmethod
 
-from app.models import Document
+from app.models import Document, utc_now
 
 
 class DocumentRepository(ABC):
@@ -51,6 +51,7 @@ class InMemoryDocumentRepository(DocumentRepository):
             doc = self._docs[doc_id]
             for name, value in fields.items():
                 setattr(doc, name, value)
+            doc.updated_at = utc_now()
 
     def delete(self, doc_id: str) -> bool:
         with self._lock:

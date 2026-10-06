@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react'
-import { api, typeLabel, type DocumentDetail as Detail, type DocumentSummary } from '../api'
+import {
+  api,
+  formatBytes,
+  formatDate,
+  typeLabel,
+  type DocumentDetail as Detail,
+  type DocumentSummary,
+} from '../api'
+import { StatusCell } from './DocumentTable'
 
 interface Props {
   summary: DocumentSummary
@@ -34,13 +42,26 @@ export function DocumentDetail({ summary, onClose }: Props) {
 
       {summary.error && <div className="banner">{summary.error}</div>}
 
-      <dl className="facts">
-        <Fact label="Type" value={typeLabel(summary.file_type)} />
-        <Fact label="Status" value={summary.status} />
-        <Fact label="Method" value={summary.extraction_method} />
-        <Fact label="Pages" value={summary.page_count} />
-        <Fact label="Category" value={summary.category} />
-      </dl>
+      <StatusCell doc={summary} />
+
+      <section>
+        <h3>File</h3>
+        <dl className="facts">
+          <Fact label="Type" value={typeLabel(summary)} />
+          <Fact label="Size" value={formatBytes(summary.size_bytes)} />
+          <Fact label="Pages" value={summary.page_count} />
+          <Fact label="Uploaded" value={formatDate(summary.created_at)} />
+          <Fact label="Updated" value={formatDate(summary.updated_at)} />
+        </dl>
+      </section>
+
+      <section>
+        <h3>Extraction</h3>
+        <dl className="facts">
+          <Fact label="Method" value={summary.extraction_method} />
+          <Fact label="Category" value={summary.category} />
+        </dl>
+      </section>
 
       {d?.summary && (
         <section>

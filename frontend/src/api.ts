@@ -6,6 +6,7 @@ export interface DocumentSummary {
   id: string
   filename: string
   file_type: string | null
+  size_bytes: number
   status: Status
   progress: number
   error: string | null
@@ -13,6 +14,7 @@ export interface DocumentSummary {
   page_count: number | null
   category: string | null
   created_at: string
+  updated_at: string
 }
 
 export interface Chunk {
@@ -51,6 +53,28 @@ export const api = {
   },
 }
 
+// --- display helpers ---
+
 export const isActive = (d: DocumentSummary) => d.status === 'queued' || d.status === 'processing'
 
-export const typeLabel = (t: string | null) => (t === 'pdf' ? 'PDF' : t === 'docx' ? 'Word' : '—')
+export const STATUS_LABEL: Record<Status, { label: string; hint: string }> = {
+  queued: { label: 'Queued', hint: 'Added, waiting for extraction' },
+  processing: { label: 'Extracting', hint: 'Content is being extracted' },
+  done: { label: 'Stored', hint: 'Content extracted and stored' },
+  failed: { label: 'Error', hint: 'Processing failed' },
+}
+
+// detected type wins; extension as fallback (e.g. before detection / on failure)
+export function typeLabel(d: DocumentSummary): string {
+  const t = d.file_type ?? d.filename.split('.').pop()?.toLowerCase()
+  return t === 'pdf' ? 'PDF' : t === 'docx' ? 'Word' : '—'
+}
+
+export const formatDate = (iso: string) =>
+  new Date(iso).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+
+export function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`
+  if (n < 1024 ** 2) return `${(n / 1024).toFixed(1)} KB`
+  return `${(n / 1024 ** 2).toFixed(1)} MB`
+}

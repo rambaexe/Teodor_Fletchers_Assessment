@@ -44,7 +44,7 @@ export default function App() {
     <div className="app">
       <header>
         <h1>Document Ingestion</h1>
-        <p className="muted">Upload PDF or Word files to extract, enrich and store their content.</p>
+        <p className="muted">Upload PDF or Word files to extract content from.</p>
       </header>
 
       {error && <div className="banner">{error}</div>}

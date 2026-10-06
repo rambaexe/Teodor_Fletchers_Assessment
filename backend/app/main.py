@@ -39,6 +39,7 @@ class DocumentOut(BaseModel):
     id: str
     filename: str
     file_type: str | None
+    size_bytes: int
     status: Status
     progress: int
     error: str | None
@@ -46,6 +47,7 @@ class DocumentOut(BaseModel):
     page_count: int | None
     category: str | None
     created_at: datetime
+    updated_at: datetime
 
 
 class DocumentDetailOut(DocumentOut):
@@ -80,6 +82,7 @@ def upload_document(file: UploadFile, background: BackgroundTasks):
     with path.open("wb") as out:
         shutil.copyfileobj(file.file, out)
     doc.file_path = str(path)
+    doc.size_bytes = path.stat().st_size
 
     repository.add(doc)
     background.add_task(service.process, doc.id)  # runs after response is sent
