@@ -6,9 +6,18 @@
 
 
 - Brief: [BRIEFING.md](BRIEFING.md)
-- Written answers: [Follow-Up Questions.md](Follow-Up%20Questions.md)
+- Architecture overview: [ARCHITECTURE.md](ARCHITECTURE.md)
+- Design patterns + SOLID: [DESIGN_PATTERNS.md](DESIGN_PATTERNS.md)
 
 **Stack:** Python + FastAPI (backend), React + TypeScript + Vite (frontend).
+
+## Follow-up questions
+
+Written answers are in **[Follow-Up Questions.md](Follow-Up%20Questions.md)** (under *Answers*):
+
+1. A scalable architecture for running this pipeline in production
+2. How the design changes to support plain text files
+3. How the design changes if uploads go up 100x
 
 ## Running
 
