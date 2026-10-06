@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.api.dependencies import get_repository, get_service, get_upload_dir
 from app.main import app
-from app.repository import InMemoryDocumentRepository
+from app.repository import DocumentRepository
 from app.service import IngestionService
 
 PDF_BYTES = b"%PDF-1.4\n%minimal\n"
@@ -21,13 +21,13 @@ def make_docx_bytes() -> bytes:
 
 @pytest.fixture
 def client(tmp_path):
-    # fresh repo + temp upload dir per test, swapped in via FastAPI DI
-    repo = InMemoryDocumentRepository()
+    # fresh db + temp upload dir per test, swapped in via FastAPI DI
+    repo = DocumentRepository(tmp_path / "test.db")
     service = IngestionService(repo)
     app.dependency_overrides = {
         get_repository: lambda: repo,
         get_service: lambda: service,
-        get_upload_dir: lambda: tmp_path,
+        get_upload_dir: lambda: tmp_path / "uploads",
     }
     yield TestClient(app)
     app.dependency_overrides = {}
@@ -71,7 +71,7 @@ def test_delete_removes_record_and_file(client, tmp_path):
     doc_id = upload(client, "a.pdf", PDF_BYTES).json()["id"]
     assert client.delete(f"/documents/{doc_id}").status_code == 204
     assert client.get(f"/documents/{doc_id}").status_code == 404
-    assert list(tmp_path.iterdir()) == []
+    assert list((tmp_path / "uploads").iterdir()) == []
 
 
 def test_unknown_document_404(client):

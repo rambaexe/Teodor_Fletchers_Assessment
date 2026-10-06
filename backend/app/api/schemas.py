@@ -1,10 +1,14 @@
 """Response schemas: the API contract, kept separate from domain models."""
 
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field
 
 from app.models import Status
+
+# SQLite drops tz info; stored values are UTC -> mark them so clients don't read local time
+UtcDatetime = Annotated[datetime, AfterValidator(lambda d: d if d.tzinfo else d.replace(tzinfo=timezone.utc))]
 
 
 class ChunkOut(BaseModel):
@@ -30,12 +34,12 @@ class DocumentOut(BaseModel):
     extraction_method: str | None
     page_count: int | None
     category: str | None
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcDatetime
+    updated_at: UtcDatetime
 
 
 class DocumentDetailOut(DocumentOut):
-    metadata: dict
+    metadata: dict = Field(validation_alias="doc_metadata")
     summary: str | None
     keywords: list[str]
     chunks: list[ChunkOut]

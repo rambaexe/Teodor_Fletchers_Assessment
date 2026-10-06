@@ -33,16 +33,4 @@ class IngestionService:
 
             self.repository.update(doc_id, status=Status.DONE, progress=100)
         except Exception as e:
-            try:
-                self.repository.update(doc_id, status=Status.FAILED, error=str(e))
-            except KeyError:
-                pass  # deleted mid-processing
-
-    def recover_interrupted(self) -> int:
-        """On startup: jobs left queued/processing died with the old process -> mark failed."""
-        stuck = [d for d in self.repository.list() if d.status in (Status.QUEUED, Status.PROCESSING)]
-        for doc in stuck:
-            self.repository.update(
-                doc.id, status=Status.FAILED, error="Interrupted by a server restart; please re-upload"
-            )
-        return len(stuck)
+            self.repository.update(doc_id, status=Status.FAILED, error=str(e))
