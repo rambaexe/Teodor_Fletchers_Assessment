@@ -10,3 +10,14 @@ dependencies = [
     "pypdf[image]>=6.19.0",
     "sqlalchemy>=2.0.54",
 ]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+    "reportlab>=5.0.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`"]

@@ -27,3 +27,5 @@ npm run dev
 - `npm run dev` starts both with live reload, in one terminal
 - Open the URL Vite prints (http://localhost:5173 or the next free port); Ctrl+C stops both
 - API docs: http://localhost:8000/docs
+
+Tests (backend): `npm test`
