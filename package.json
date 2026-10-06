@@ -1,0 +1,12 @@
+{
+  "name": "fletchers-assessment",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install --prefix frontend && uv sync --directory backend",
+    "dev": "concurrently -k -n api,web -c blue,magenta \"uv run --directory backend uvicorn app.main:app --reload\" \"npm run dev --prefix frontend\"",
+    "test": "uv run --directory backend pytest"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

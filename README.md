@@ -24,15 +24,13 @@ Docker picks free ports. The script prints the URLs and opens the app in your br
 
 Requires Python 3.10+, [uv](https://docs.astral.sh/uv/getting-started/installation/) and Node 20+.
 
-```bash
-cd backend
-uv run uvicorn app.main:app --reload
-```
+From the repo root:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+npm install   # installs frontend + backend deps
+npm run dev   # starts both, live reload
 ```
 
-Open the URL Vite prints.
+Open http://localhost:5173 (or the next free port Vite prints). Ctrl+C stops both.
+
+Tests: `npm test`
