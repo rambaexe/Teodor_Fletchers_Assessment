@@ -4,7 +4,8 @@ import zipfile
 import pytest
 from fastapi.testclient import TestClient
 
-from app import main
+from app.api.dependencies import get_repository, get_service, get_upload_dir
+from app.main import app
 from app.repository import InMemoryDocumentRepository
 from app.service import IngestionService
 
@@ -19,13 +20,17 @@ def make_docx_bytes() -> bytes:
 
 
 @pytest.fixture
-def client(tmp_path, monkeypatch):
-    # fresh repo + temp upload dir per test
+def client(tmp_path):
+    # fresh repo + temp upload dir per test, swapped in via FastAPI DI
     repo = InMemoryDocumentRepository()
-    monkeypatch.setattr(main, "repository", repo)
-    monkeypatch.setattr(main, "service", IngestionService(repo))
-    monkeypatch.setattr(main, "UPLOAD_DIR", tmp_path)
-    return TestClient(main.app)
+    service = IngestionService(repo)
+    app.dependency_overrides = {
+        get_repository: lambda: repo,
+        get_service: lambda: service,
+        get_upload_dir: lambda: tmp_path,
+    }
+    yield TestClient(app)
+    app.dependency_overrides = {}
 
 
 def upload(client, name: str, content: bytes):
