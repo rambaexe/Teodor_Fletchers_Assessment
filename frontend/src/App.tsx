@@ -1,40 +1,66 @@
-import { useCallback, useEffect, useState } from 'react'
-import { api, isActive, type DocumentSummary } from './api'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { api, isActive, type DocumentSummary, type Status } from './api'
 import { DocumentDetail } from './components/DocumentDetail'
 import { DocumentTable } from './components/DocumentTable'
+import { Toasts } from './components/Toasts'
+import { useToasts } from './useToasts'
 import { UploadArea } from './components/UploadArea'
 
 const POLL_MS = 1000
+const BACKEND_DOWN = 'backend-down' // toast id
 
 export default function App() {
   const [documents, setDocuments] = useState<DocumentSummary[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [backendDown, setBackendDown] = useState(false)
+  const { toasts, notify, dismiss } = useToasts()
+
+  // last seen status per doc; used to toast docs that just failed
+  const lastStatus = useRef(new Map<string, Status>())
 
   const refresh = useCallback(async () => {
     try {
-      setDocuments(await api.list())
-      setError(null)
+      const docs = await api.list()
+      for (const d of docs) {
+        const prev = lastStatus.current.get(d.id)
+        if (d.status === 'failed' && prev && prev !== 'failed') {
+          notify(`${d.filename}: ${d.error ?? 'processing failed'}`)
+        }
+      }
+      lastStatus.current = new Map(docs.map((d) => [d.id, d.status]))
+      setDocuments(docs)
+      setBackendDown(false)
+      dismiss(BACKEND_DOWN)
     } catch {
-      setError('Cannot reach the backend')
+      setBackendDown(true)
+      notify('Cannot reach the backend. Retrying…', { id: BACKEND_DOWN, sticky: true })
     }
-  }, [])
+  }, [notify, dismiss])
 
   useEffect(() => {
     refresh()
   }, [refresh])
 
-  // poll only while something is still processing
-  const anyActive = documents.some(isActive)
+  // poll while something is processing, or until the backend is back
+  const shouldPoll = backendDown || documents.some(isActive)
   useEffect(() => {
-    if (!anyActive) return
+    if (!shouldPoll) return
     const timer = setInterval(refresh, POLL_MS)
     return () => clearInterval(timer)
-  }, [anyActive, refresh])
+  }, [shouldPoll, refresh])
 
-  const handleDelete = async (id: string) => {
-    await api.remove(id)
-    if (id === selectedId) setSelectedId(null)
+  const handleUploaded = (docs: DocumentSummary[]) => {
+    for (const d of docs) lastStatus.current.set(d.id, d.status)
+    refresh()
+  }
+
+  const handleDelete = async (doc: DocumentSummary) => {
+    try {
+      await api.remove(doc.id)
+      if (doc.id === selectedId) setSelectedId(null)
+    } catch (e) {
+      notify(`Could not delete ${doc.filename}. ${(e as Error).message}`)
+    }
     refresh()
   }
 
@@ -47,9 +73,7 @@ export default function App() {
         <p className="muted">Upload PDF or Word files to extract content from.</p>
       </header>
 
-      {error && <div className="banner">{error}</div>}
-
-      <UploadArea onUploaded={refresh} />
+      <UploadArea onUploaded={handleUploaded} notify={notify} />
 
       <div className={selected ? 'layout with-detail' : 'layout'}>
         <DocumentTable
@@ -60,6 +84,8 @@ export default function App() {
         />
         {selected && <DocumentDetail summary={selected} onClose={() => setSelectedId(null)} />}
       </div>
+
+      <Toasts toasts={toasts} onDismiss={dismiss} />
     </div>
   )
 }

@@ -35,8 +35,19 @@ export interface DocumentDetail extends DocumentSummary {
 // /api is proxied to the backend by Vite
 async function request(path: string, init?: RequestInit): Promise<Response> {
   const res = await fetch(`/api${path}`, init)
-  if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`)
+  if (!res.ok) throw new Error(await errorMessage(res))
   return res
+}
+
+// FastAPI errors look like {"detail": "..."}; fall back to the status line
+async function errorMessage(res: Response): Promise<string> {
+  try {
+    const body = await res.json()
+    if (typeof body.detail === 'string') return body.detail
+  } catch {
+    // not JSON
+  }
+  return `Request failed (${res.status} ${res.statusText})`
 }
 
 export const api = {
@@ -54,6 +65,11 @@ export const api = {
 }
 
 // --- display helpers ---
+
+export const ACCEPTED_EXTENSIONS = ['.pdf', '.docx']
+
+export const isAccepted = (f: File) =>
+  ACCEPTED_EXTENSIONS.some((ext) => f.name.toLowerCase().endsWith(ext))
 
 export const isActive = (d: DocumentSummary) => d.status === 'queued' || d.status === 'processing'
 

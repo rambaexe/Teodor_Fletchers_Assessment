@@ -4,7 +4,7 @@ interface Props {
   documents: DocumentSummary[]
   selectedId: string | null
   onSelect: (id: string) => void
-  onDelete: (id: string) => void
+  onDelete: (doc: DocumentSummary) => void
 }
 
 export function DocumentTable({ documents, selectedId, onSelect, onDelete }: Props) {
@@ -45,7 +45,7 @@ export function DocumentTable({ documents, selectedId, onSelect, onDelete }: Pro
                   title="Delete"
                   onClick={(e) => {
                     e.stopPropagation()
-                    onDelete(d.id)
+                    onDelete(d)
                   }}
                 >
                   ✕
